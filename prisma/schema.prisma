@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Drugs {
+  id         String     @db.VarChar(100)
+  Drugcode   String     @id @db.VarChar(20)
+  DrugName   String     @db.VarChar(255)
+  DrugStatus Boolean    @default(false)
+  DrugImage  String?    @db.VarChar(255)
+  CreatedAt  DateTime   @default(now())
+  UpdatedAt  DateTime   @default(now()) @updatedAt
+  Inventory  Inventory?
+  Order      Orders[]
+}
+
+model Orders {
+  id             String       @id @db.VarChar(200)
+  PrescriptionId String       @db.VarChar(200)
+  OrderItemId    String       @db.VarChar(200)
+  OrderItemName  String       @db.VarChar(200)
+  OrderQty       Int
+  OrderUnitcode  String       @db.VarChar(20)
+  Machine        String       @db.VarChar(200)
+  Command        String       @db.VarChar(200)
+  OrderStatus    String       @default("ready") @db.VarChar(100)
+  Floor          Int
+  Position       Int
+  Slot           String?      @db.VarChar(2)
+  CreatedAt      DateTime     @default(now())
+  UpdatedAt      DateTime     @default(now()) @updatedAt
+  DrugInfo       Drugs        @relation(fields: [OrderItemId], references: [Drugcode])
+  Prescription   Prescription @relation(fields: [PrescriptionId], references: [id])
+}
+
+model Prescription {
+  id               String   @id @db.VarChar(200)
+  PrescriptionDate String   @db.VarChar(200)
+  Hn               String   @db.VarChar(20)
+  An               String   @db.VarChar(20)
+  PatientName      String   @db.VarChar(200)
+  WardCode         String   @db.VarChar(20)
+  WardDesc         String   @db.VarChar(200)
+  PriorityCode     String   @db.VarChar(20)
+  PriorityDesc     String   @db.VarChar(200)
+  PresStatus       String   @default("ready") @db.VarChar(100)
+  CreatedAt        DateTime @default(now())
+  UpdatedAt        DateTime @default(now()) @updatedAt
+  Order            Orders[]
+}
+
+model Machines {
+  id            String   @id @db.VarChar(100)
+  MachineName   String   @db.VarChar(200)
+  MachineStatus String   @db.Char(1)
+  MachineSlot1  Boolean  @default(false)
+  MachineSlot2  Boolean  @default(false)
+  CreatedAt     DateTime @default(now())
+  UpdatedAt     DateTime @default(now()) @updatedAt
+  IP            String?  @db.VarChar(100)
+  Running       Int      @default(1)
+}
+
+model Inventory {
+  id                String    @id @db.VarChar(100)
+  InventoryPosition Int
+  InventoryQty      Int       @default(0)
+  Min               Int       @default(0)
+  Max               Int       @default(0)
+  InventoryStatus   Boolean   @default(false)
+  DrugId            String    @unique @db.VarChar(100)
+  CreatedAt         DateTime  @default(now())
+  UpdatedAt         DateTime  @default(now()) @updatedAt
+  Expiydate         DateTime?
+  InventoryFloor    Int
+  Drug              Drugs     @relation(fields: [DrugId], references: [Drugcode])
+}
+
+model Users {
+  id           String   @id @db.VarChar(100)
+  UserName     String   @unique @db.VarChar(155)
+  UserPassword String   @db.VarChar(155)
+  UserPincode  String   @db.VarChar(155)
+  DisplayName  String   @db.VarChar(150)
+  UserImage    String?  @db.VarChar(255)
+  UserStatus   Boolean  @default(true)
+  UserRole     Role     @default(USER)
+  CreateBy     String   @db.VarChar(100)
+  CreatedAt    DateTime @default(now())
+  UpdatedAt    DateTime @default(now()) @updatedAt
+}
+
+enum Role {
+  ADMIN
+  USER
+  HEAD_PHARMACIST
+  PHARMACIST
+  ASSISTANT
+  SUPER
+}
