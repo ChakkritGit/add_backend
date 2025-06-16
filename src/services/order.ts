@@ -29,7 +29,7 @@ const statusPrescription = async (presNo: string, status: string) => {
 const getPharmacyPres = async (rfid: string) => {
   try {
     const response = await axios.get<ResponsePres>(
-      `${process.env.PHARMACY_HOST}/getPresTest/${rfid}`
+      `${process.env.PHARMACY_URL}/getPresTest/${rfid}`
     )
     return response.data.data
   } catch (error) {
@@ -323,11 +323,18 @@ const received = async (drugId: string, id: string): Promise<Orders> => {
 const updateStatusOrderServicePending = async (
   id: string,
   status: string,
-  presId: string
+  presId: string,
+  machineId: string
 ) => {
   try {
-    const connectedSockets = tcpService.getConnectedSockets()
-    const socket = connectedSockets[0]
+    const machine = await prisma.machines.findUnique({
+      where: { id: machineId }
+    })
+    if (!machine) throw new HttpError(404, 'Machine not found')
+
+    const socket = tcpService
+      .getConnectedSockets()
+      .find(s => s.remoteAddress === machine.IP)
 
     const order = await prisma.orders.findUnique({
       where: { OrderItemId: id, PrescriptionId: presId }
@@ -391,8 +398,13 @@ const updateStatusOrderServicePending = async (
     const checkMachineStatus = async (
       cmd: string
     ): Promise<{ status: string; raw: string }> => {
+      if (!socket) {
+        throw new Error('ไม่มีการเชื่อมต่อกับ PLC')
+      }
+
       const running = await getRunning(id)
-      return new Promise(resolve => {
+
+      return new Promise((resolve, reject) => {
         const m = parseInt(cmd.slice(1))
         const sumValue = 0 + 0 + 0 + 0 + 0 + m + 0 + running + 4500
         const sum = pad(sumValue, 2).slice(-2)
@@ -401,16 +413,18 @@ const updateStatusOrderServicePending = async (
         console.log(`📤 Sending status check command: ${checkMsg}`)
         socket.write(checkMsg)
 
-        // const timeout = setTimeout(() => {
-        //   socket.off('data', onData);
-        //   reject(new Error('Timeout: PLC ไม่ตอบสนอง'));
-        // }, 5000);
+        const timeout = setTimeout(() => {
+          socket.off('data', onData)
+          reject(new Error('Timeout: PLC ไม่ตอบสนองภายใน 5 วินาที'))
+        }, 5000)
 
         const onData = (data: Buffer) => {
           const message = data.toString()
           const status = message.split('T')[1]?.substring(0, 2) ?? '00'
-          // clearTimeout(timeout);
+
+          clearTimeout(timeout)
           socket.off('data', onData)
+
           console.log(
             `📥 Response from PLC (${cmd}):`,
             message,
@@ -425,51 +439,85 @@ const updateStatusOrderServicePending = async (
     }
 
     if (socket && status === 'receive') {
-      const status = await checkMachineStatus('M39')
+      try {
+        const trayStatus = await checkMachineStatus('M39')
+        console.log('🔍 Tray status check:', trayStatus.status)
 
-      if (status.status !== '37') {
-        rabbitService.acknowledgeMessage()
-      } else {
-        const startTime = Date.now()
-        const timeout = 3 * 60 * 1000 // 3 นาที
-        let round = 1
-
-        while (true) {
-          const status = await checkMachineStatus('M38') // เช็คประตู
-          console.log(`status: ${round}`, status.status)
-
-          if (status.status === '30') {
-            // ประตูปิดแล้ว
+        if (trayStatus.status !== '37') {
+          console.log('✅ Tray not full, acknowledging message')
+          if (rabbitService.acknowledgeMessage) {
             rabbitService.acknowledgeMessage()
-            socketService
-              .getIO()
-              .emit('res_message', `Receive Order : ${result?.id}`)
-            round + 1
-            break
           }
+        } else {
+          console.log('⚠️ Tray is full, waiting for door to close')
 
-          const elapsed = Date.now() - startTime
-          if (elapsed > timeout) {
-            // ครบเวลา 3 นาที แต่ประตูยังไม่ปิด
-            console.error('Timeout: ประตูไม่ปิดภายใน 3 นาที')
-            rabbitService.acknowledgeMessage()
-            socketService
-              .getIO()
-              .emit(
-                'res_message',
-                `Timeout: ประตูไม่ปิดภายใน 3 นาที สำหรับ Order : ${result?.id}`
+          const startTime = Date.now()
+          const timeout = 3 * 60 * 1000
+          let round = 1
+          let doorClosed = false
+
+          while (!doorClosed) {
+            try {
+              const doorStatus = await checkMachineStatus('M38')
+              console.log(
+                `🚪 Door status check round ${round}:`,
+                doorStatus.status
               )
-            round + 1
-            break
-          }
 
-          await new Promise(resolve => setTimeout(resolve, 1000)) // รอ 1 วิ ก่อนเช็คใหม่
+              if (doorStatus.status === '30') {
+                console.log('✅ Door is closed')
+                doorClosed = true
+
+                if (rabbitService.acknowledgeMessage) {
+                  rabbitService.acknowledgeMessage()
+                }
+
+                if (socketService.getIO) {
+                  socketService
+                    .getIO()
+                    .emit('res_message', `Receive Order: ${result?.id}`)
+                }
+                break
+              }
+
+              const elapsed = Date.now() - startTime
+              if (elapsed > timeout) {
+                console.error('⏰ Timeout: ประตูไม่ปิดภายใน 3 นาที')
+
+                if (rabbitService.acknowledgeMessage) {
+                  rabbitService.acknowledgeMessage()
+                }
+
+                if (socketService.getIO) {
+                  socketService
+                    .getIO()
+                    .emit(
+                      'res_message',
+                      `Timeout: ประตูไม่ปิดภายใน 3 นาที สำหรับ Order: ${result?.id}`
+                    )
+                }
+                break
+              }
+
+              await new Promise(resolve => setTimeout(resolve, 1000))
+              round++
+            } catch (doorCheckError) {
+              console.error('❌ Error checking door status:', doorCheckError)
+              break
+            }
+          }
+        }
+      } catch (plcError) {
+        console.error('❌ Error in PLC status checking:', plcError)
+        if (rabbitService.acknowledgeMessage) {
+          rabbitService.acknowledgeMessage()
         }
       }
     }
 
     return result as unknown as Orders
   } catch (error) {
+    console.error('❌ Error in updateStatusOrderServicePending:', error)
     throw error
   }
 }

@@ -100,10 +100,16 @@ const updateStatusPending = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'pending', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'pending',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)
@@ -117,10 +123,16 @@ const updateStatusReceive = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'receive', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'receive',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)
@@ -134,10 +146,16 @@ const updateStatusComplete = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'complete', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'complete',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)
@@ -151,10 +169,16 @@ const updateStatusRrror = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'error', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'error',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)
@@ -168,10 +192,16 @@ const updateStatusReady = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'ready', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'ready',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)
