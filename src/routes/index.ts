@@ -25,7 +25,7 @@ routes.use(
       : 'public/images'
   )
 )
-routes.use('/', (_req: Request, res: Response<BaseResponse>, _next: NextFunction) => {
+routes.use('/', (res: Response<BaseResponse>) => {
   res.status(404).json({
     message: 'Not Found',
     success: false,

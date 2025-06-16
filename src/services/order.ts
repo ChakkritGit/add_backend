@@ -89,6 +89,14 @@ const createPresService = async (pres: Prescription): Promise<Orders[]> => {
       item => item.Machine === 'ADD'
     )
 
+    const checkPres = await prisma.prescription.findFirst({
+      where: { id: presList[0]?.f_prescriptionno }
+    })
+
+    if (checkPres) {
+      throw new HttpError(500, 'รายการนี้กำลังจัดอยู่')
+    }
+
     if (presList.length > 0) {
       const order: Orders[] = presList
         .map(item => {
@@ -135,10 +143,8 @@ const createPresService = async (pres: Prescription): Promise<Orders[]> => {
       const filteredWarnings = warnings.filter(warning => warning !== null)
 
       await prisma.$transaction([
-        prisma.prescription.upsert({
-          where: { id: presList[0].f_prescriptionno },
-          update: {},
-          create: {
+        prisma.prescription.create({
+          data: {
             id: presList[0].f_prescriptionno,
             PrescriptionDate: presList[0].f_prescriptiondate,
             Hn: presList[0].f_hn,

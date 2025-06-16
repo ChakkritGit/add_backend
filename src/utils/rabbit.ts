@@ -70,8 +70,11 @@ class RabbitMQService {
       const socket = connectedSockets[0]
       if (socket) {
         const order: PlcSendMessage = JSON.parse(message)
-        await axios.get(
-          `http://localhost:3000/api/orders/status/pending/${order.orderId}/${order.presId}`
+        await axios.post(
+          `http://localhost:3000/api/orders/status/pending/${order.orderId}/${order.presId}`,
+          {
+            machineId: order.machineId
+          }
         )
         socketService.getIO().emit('res_message', `Create : 'update order'`)
 
@@ -83,12 +86,18 @@ class RabbitMQService {
         )
 
         if (dispensed) {
-          await axios.get(
-            `http://localhost:3000/api/orders/status/receive/${order.orderId}/${order.presId}`
+          await axios.post(
+            `http://localhost:3000/api/orders/status/receive/${order.orderId}/${order.presId}`,
+            {
+              machineId: order.machineId
+            }
           )
         } else {
-          await axios.get(
-            `http://localhost:3000/api/orders/status/error/${order.orderId}/${order.presId}`
+          await axios.post(
+            `http://localhost:3000/api/orders/status/error/${order.orderId}/${order.presId}`,
+            {
+              machineId: order.machineId
+            }
           )
           if (this.newMessage) {
             this.channel.ack(this.newMessage)
