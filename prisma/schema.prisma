@@ -16,24 +16,24 @@ model Drugs {
   CreatedAt  DateTime   @default(now())
   UpdatedAt  DateTime   @default(now()) @updatedAt
   Inventory  Inventory?
-  Order      Orders[]
+  Order      Orders?
 }
 
 model Orders {
-  id             String       @id @db.VarChar(200)
+  id             String       @db.VarChar(200)
   PrescriptionId String       @db.VarChar(200)
-  OrderItemId    String       @db.VarChar(200)
+  OrderItemId    String       @id @db.VarChar(200)
   OrderItemName  String       @db.VarChar(200)
   OrderQty       Int
   OrderUnitcode  String       @db.VarChar(20)
   Machine        String       @db.VarChar(200)
   Command        String       @db.VarChar(200)
   OrderStatus    String       @default("ready") @db.VarChar(100)
-  Floor          Int
   Position       Int
   Slot           String?      @db.VarChar(2)
   CreatedAt      DateTime     @default(now())
   UpdatedAt      DateTime     @default(now()) @updatedAt
+  Floor          Int
   DrugInfo       Drugs        @relation(fields: [OrderItemId], references: [Drugcode])
   Prescription   Prescription @relation(fields: [PrescriptionId], references: [id])
 }
@@ -55,15 +55,16 @@ model Prescription {
 }
 
 model Machines {
-  id            String   @id @db.VarChar(100)
-  MachineName   String   @db.VarChar(200)
-  MachineStatus String   @db.Char(1)
-  MachineSlot1  Boolean  @default(false)
-  MachineSlot2  Boolean  @default(false)
-  CreatedAt     DateTime @default(now())
-  UpdatedAt     DateTime @default(now()) @updatedAt
-  IP            String?  @db.VarChar(100)
-  Running       Int      @default(1)
+  id                  String   @id @db.VarChar(100)
+  MachineName         String   @db.VarChar(200)
+  MachineStatus       String   @db.Char(1)
+  MachineSlot1        Boolean  @default(false)
+  MachineSlot2        Boolean  @default(false)
+  CreatedAt           DateTime @default(now())
+  UpdatedAt           DateTime @default(now()) @updatedAt
+  IP                  String?  @db.VarChar(100)
+  Running             Int      @default(1)
+  MachineRunningCheck Int      @default(1)
 }
 
 model Inventory {

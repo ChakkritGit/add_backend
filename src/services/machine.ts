@@ -143,7 +143,7 @@ const updateOrderDeviceSlot = async (
     })
     if (value) {
       await prisma.orders.update({
-        where: { id: order_id },
+        where: { OrderItemId: order_id },
         data: { Slot: machine_slot }
       })
     }

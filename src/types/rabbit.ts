@@ -4,12 +4,12 @@ interface QueueList {
 }
 
 interface PlcSendMessage {
+  machineId: string
+  presId?: string
+  orderId?: string
   floor: number
   position: number
   qty: number
-  id: string
-  orderId?: string
-  presId?: string
 }
 
 export type { QueueList, PlcSendMessage }
