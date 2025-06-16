@@ -135,8 +135,10 @@ const createPresService = async (pres: Prescription): Promise<Orders[]> => {
       const filteredWarnings = warnings.filter(warning => warning !== null)
 
       await prisma.$transaction([
-        prisma.prescription.create({
-          data: {
+        prisma.prescription.upsert({
+          where: { id: presList[0].f_prescriptionno },
+          update: {},
+          create: {
             id: presList[0].f_prescriptionno,
             PrescriptionDate: presList[0].f_prescriptiondate,
             Hn: presList[0].f_hn,
@@ -151,7 +153,10 @@ const createPresService = async (pres: Prescription): Promise<Orders[]> => {
             UpdatedAt: getDateFormat(new Date())
           }
         }),
-        prisma.orders.createMany({ data: order })
+        prisma.orders.createMany({
+          data: order,
+          skipDuplicates: true
+        })
       ])
 
       if (filteredWarnings.length > 0) {
@@ -159,6 +164,7 @@ const createPresService = async (pres: Prescription): Promise<Orders[]> => {
           ;(item as any).warning = filteredWarnings[index] || null
         })
       }
+
       return order
     } else {
       throw new HttpError(404, 'Order not found on ADD')
