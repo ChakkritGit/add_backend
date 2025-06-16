@@ -28,10 +28,17 @@ const dispenseOrder = async (
     const { id } = req.body
     const rfid = req.params.rfid
 
+    if (!id || !rfid) {
+      throw new HttpError(
+        500,
+        `Machine ID: ${id}, Or RFID: ${rfid}, not found!`
+      )
+    }
+
     const order = await findPrescription(rfid)
     const connectedSockets = tcpService.getConnectedSockets()
 
-    if (!!order) {
+    if (order) {
       throw new HttpError(409, 'Order already exists')
     }
 
@@ -40,11 +47,12 @@ const dispenseOrder = async (
     })
 
     if (findMachine && connectedSockets.length > 0) {
-      connectedSockets.filter(item => {
-        if (item.remoteAddress !== findMachine.IP) {
-          throw new HttpError(500, 'เครื่องไม่พร้อมใช้งาน')
-        }
-      })
+      const isMatched = connectedSockets.some(
+        item => item.remoteAddress === findMachine.IP
+      )
+      if (!isMatched) {
+        throw new HttpError(500, 'เครื่องไม่พร้อมใช้งาน')
+      }
     }
 
     const response = await getPharmacyPres(rfid)
@@ -61,11 +69,14 @@ const dispenseOrder = async (
         }
       })
       .sort((a, b) => a.floor - b.floor)
+
     await sendOrder(cmd, 'orders')
     await statusPrescription(response.PrescriptionNo, 'pending')
+
     socketService
       .getIO()
       .emit('res_message', `Create : ${response.PrescriptionNo}`)
+
     res.status(200).json({
       message: 'Success',
       success: true,
@@ -100,10 +111,16 @@ const updateStatusPending = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'pending', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'pending',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)
@@ -117,10 +134,16 @@ const updateStatusReceive = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'receive', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'receive',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)
@@ -134,10 +157,16 @@ const updateStatusComplete = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'complete', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'complete',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)
@@ -151,10 +180,16 @@ const updateStatusRrror = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'error', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'error',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)
@@ -168,10 +203,16 @@ const updateStatusReady = async (
 ) => {
   try {
     const { id, presId } = req.params
+    const { machineId } = req.body
     res.status(200).json({
       message: 'Success',
       success: true,
-      data: await updateStatusOrderServicePending(id, 'ready', presId)
+      data: await updateStatusOrderServicePending(
+        id,
+        'ready',
+        presId,
+        machineId
+      )
     })
   } catch (error) {
     next(error)

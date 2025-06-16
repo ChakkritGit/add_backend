@@ -105,12 +105,7 @@ const sendCommandFromQueue = async (
   position: number,
   qty: number,
   machineId: string
-): Promise<{
-  message: string
-  floor: number
-  position: number
-  plcResponse: string
-}> => {
+) => {
   if (!floor || !qty || !position || !machineId) {
     throw new HttpError(400, 'Missing payload values')
   }

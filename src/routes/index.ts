@@ -1,5 +1,5 @@
 import { BaseResponse } from '@/types/global'
-import express, { Response, Router } from 'express'
+import express, { Request, Response, Router, NextFunction } from 'express'
 import authRouter from '@/routes/auth'
 import userRouter from '@/routes/user'
 import drugRouter from '@/routes/drug'
@@ -25,7 +25,7 @@ routes.use(
       : 'public/images'
   )
 )
-routes.use('/', (res: Response<BaseResponse>) => {
+routes.use('/', (_req: Request, res: Response<BaseResponse>, _next: NextFunction) => {
   res.status(404).json({
     message: 'Not Found',
     success: false,
