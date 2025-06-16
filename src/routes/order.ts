@@ -14,7 +14,7 @@ import { Router } from 'express'
 const orderRouter: Router = Router()
 
 orderRouter.get('/', getOrder)
-orderRouter.get('/dispense/:rfid', dispenseOrder)
+orderRouter.post('/dispense/:rfid', dispenseOrder)
 orderRouter.post('/status/pending/:id/:presId', updateStatusPending)
 orderRouter.post('/status/receive/:id/:presId', updateStatusReceive)
 orderRouter.post('/status/complete/:id/:presId', updateStatusComplete)
