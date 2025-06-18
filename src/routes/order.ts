@@ -3,6 +3,7 @@ import {
   clearOrder,
   dispenseOrder,
   getOrder,
+  updateSlot,
   updateStatusComplete,
   updateStatusPending,
   updateStatusReady,
@@ -20,6 +21,7 @@ orderRouter.post('/status/receive/:id/:presId', updateStatusReceive)
 orderRouter.post('/status/complete/:id/:presId', updateStatusComplete)
 orderRouter.post('/status/error/:id/:presId', updateStatusRrror)
 orderRouter.post('/status/ready/:id/:presId', updateStatusReady)
+orderRouter.post('/slot/update/:orderId', updateSlot)
 orderRouter.post('/:prescriptionId', cancelOrder)
 orderRouter.get('/clear', clearOrder)
 

@@ -104,7 +104,8 @@ const sendCommandFromQueue = async (
   floor: number,
   position: number,
   qty: number,
-  machineId: string
+  machineId: string,
+  orderId?: string
 ) => {
   if (!floor || !qty || !position || !machineId) {
     throw new HttpError(400, 'Missing payload values')
@@ -119,19 +120,17 @@ const sendCommandFromQueue = async (
   if (!socket) throw new HttpError(500, 'ยังไม่มีการเชื่อมต่อกับ PLC')
 
   try {
-    const running = await getRunning(machineId)
-
     const bodyData: CheckMachineStatusType = {
       floor,
       position,
       qty,
-      id: machineId
+      id: machineId,
+      orderId
     }
 
     const checkResult = await checkMachineStatusShared(
       socket,
-      bodyData,
-      running
+      bodyData
     )
 
     return {

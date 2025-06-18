@@ -98,16 +98,16 @@ const checkMachineStatus = async (
   return new Promise((resolve, reject) => {
     let responded = false
 
-    const timeout = setTimeout(() => {
-      if (!responded) {
-        console.warn('⌛ Timeout waiting for response from PLC')
-        reject(new Error('PLC ไม่ตอบสนองใน 5 วินาที'))
-      }
-    }, 5000)
+    // const timeout = setTimeout(() => {
+    //   if (!responded) {
+    //     console.warn('⌛ Timeout waiting for response from PLC')
+    //     reject(new Error('PLC ไม่ตอบสนองใน 5 วินาที'))
+    //   }
+    // }, 5000)
 
     socket.once('data', data => {
       responded = true
-      clearTimeout(timeout)
+      // clearTimeout(timeout)
       const responseText = data.toString()
       console.log('📥 Final PLC response:', responseText)
 

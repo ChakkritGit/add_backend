@@ -1,15 +1,15 @@
-import { PlcCommand, PLCStatusError } from '@/types/checkMachine'
-import { getMachineRunningCheck } from './checkMachineStatus'
+import { CheckMachineStatusType, PlcCommand, PLCStatusError } from '@/types/checkMachine'
+import { getMachineRunningCheck, getRunning } from './checkMachineStatus'
 import { pad } from './padStart'
 import { createPlcCommand } from '@/constants/checkMachineStatus'
 import { Socket } from 'net'
+import axios from 'axios'
 
 const checkMachineStatusShared = async (
   socket: Socket,
-  bodyData: CheckMachineStatusType,
-  running: number
+  bodyData: CheckMachineStatusType
 ): Promise<CommandResult> => {
-  const { floor, id, position, qty } = bodyData
+  const { floor, id, position, qty, orderId } = bodyData
 
   let mode: PlcCommand = PlcCommand.DispenseRight
 
@@ -29,8 +29,20 @@ const checkMachineStatusShared = async (
 
       if (cmd === PlcCommand.CheckTray) {
         if (status === '35') {
+          await axios.post(
+            `http://localhost:3000/api/orders/slot/update/${orderId}`,
+            {
+              slot: 'M02'
+            }
+          )
           mode = PlcCommand.DispenseLeft
         } else if (status === '34' || status === '36') {
+          await axios.post(
+            `http://localhost:3000/api/orders/slot/update/${orderId}`,
+            {
+              slot: 'M01'
+            }
+          )
           mode = PlcCommand.DispenseRight
         } else if (failStatuses.includes(status)) {
           throw new PLCStatusError(`❌ เครื่องไม่พร้อม (${cmd}) -> ${status}`)
@@ -53,6 +65,8 @@ const checkMachineStatusShared = async (
     }
   }
 
+  const running = await getRunning(id)
+
   const message = createPlcCommand(floor, position, qty, mode, running)
   console.log('📤 Final PLC command:', message)
   socket.write(message)
@@ -60,23 +74,28 @@ const checkMachineStatusShared = async (
   return new Promise((resolve, reject) => {
     let responded = false
 
-    const timeout = setTimeout(() => {
-      if (!responded) {
-        console.warn('⌛ Timeout waiting for response from PLC')
-        reject(new PLCStatusError('PLC ไม่ตอบสนองใน 5 วินาที'))
-      }
-    }, 5000)
+    // const timeout = setTimeout(() => {
+    //   if (!responded) {
+    //     console.warn('⌛ Timeout waiting for response from PLC')
+    //     reject(new PLCStatusError('PLC ไม่ตอบสนองใน 5 วินาที'))
+    //   }
+    // }, 5000)
 
-    socket.once('data', data => {
+    socket.on('data', data => {
       responded = true
-      clearTimeout(timeout)
+      // clearTimeout(timeout)
       const responseText = data.toString()
       console.log('📥 Final PLC response:', responseText)
 
-      resolve({
-        status: 100,
-        data: responseText
-      })
+      const responseStatus = responseText.split("T")[1].slice(0, 2)
+      console.log('Finish task: ', responseStatus)
+
+      if (responseStatus === '92') {
+        resolve({
+          status: 100,
+          data: responseText
+        })
+      }
     })
   })
 }
@@ -97,12 +116,12 @@ const sendCommandtoCheckMachineStatusShared = async (
 
     let responded = false
 
-    const timeout = setTimeout(() => {
-      if (!responded) {
-        socket.off('data', onData)
-        reject(new PLCStatusError('Timeout: PLC ไม่ตอบสนอง'))
-      }
-    }, 5000)
+    // const timeout = setTimeout(() => {
+    //   if (!responded) {
+    //     socket.off('data', onData)
+    //     reject(new PLCStatusError('Timeout: PLC ไม่ตอบสนอง'))
+    //   }
+    // }, 5000)
 
     const onData = (data: Buffer) => {
       if (responded) return
@@ -111,7 +130,7 @@ const sendCommandtoCheckMachineStatusShared = async (
       const message = data.toString()
       const status = message.split('T')[1]?.substring(0, 2) ?? '00'
 
-      clearTimeout(timeout)
+      // clearTimeout(timeout)
       socket.off('data', onData)
 
       console.log(
@@ -129,18 +148,6 @@ const sendCommandtoCheckMachineStatusShared = async (
 }
 
 const successStatuses = ['30', '34', '35', '36', '20', '37']
-const failStatuses = [
-  '37',
-  '33',
-  '21',
-  '22',
-  '23',
-  '24',
-  '25',
-  '26',
-  '27',
-  '31',
-  '32'
-]
+const failStatuses = ['37', '33', '21', '22', '23', '24', '25', '26', '27', '31', '32']
 
 export { checkMachineStatusShared }

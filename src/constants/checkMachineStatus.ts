@@ -103,6 +103,12 @@ const interpretPlcResponse = (raw: string): string => {
   switch (status) {
     case '30':
       return 'ประตูทั้งสองล็อก'
+    case '31':
+      return 'ประตูฝั่งซ้ายล็อก'
+    case '32':
+      return 'ประตูฝั่งขวาล็อก'
+    case '33':
+      return 'ประตูทั่งสองฝั่งไม่ได้ล็อก'
     case '34':
       return 'ช่องจ่ายยาขวาว่าง'
     case '35':

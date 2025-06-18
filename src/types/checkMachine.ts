@@ -4,6 +4,7 @@ type CheckMachineStatusType = {
   qty: number
   id: string
   command?: string
+  orderId?: string
 }
 
 class PLCStatusError extends Error {
