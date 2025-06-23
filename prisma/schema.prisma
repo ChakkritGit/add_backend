@@ -30,7 +30,7 @@ model Orders {
   Command        String       @db.VarChar(200)
   OrderStatus    String       @default("ready") @db.VarChar(100)
   Position       Int
-  Slot           String?      @db.VarChar(2)
+  Slot           String?      @db.VarChar(3)
   CreatedAt      DateTime     @default(now())
   UpdatedAt      DateTime     @default(now()) @updatedAt
   Floor          Int

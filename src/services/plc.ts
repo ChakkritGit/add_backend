@@ -1,3 +1,4 @@
+
 import prisma from '@/configs/prisma'
 import { tcpService } from '@/utils/tcp'
 import { checkMachineStatus, getRunning } from '@/utils/checkMachineStatus'
@@ -14,13 +15,13 @@ import {
 import { checkMachineStatusShared } from '@/utils/sendMachineQueue'
 
 const sendCommand = async (body: CheckMachineStatusType) => {
-  const { floor, position, qty, id } = body
+  const { floor, position, qty, machineId } = body
 
-  if (!floor || !qty || !position || !id) {
+  if (!floor || !qty || !position || !machineId) {
     throw new HttpError(400, 'Missing payload values')
   }
 
-  const machine = await prisma.machines.findUnique({ where: { id } })
+  const machine = await prisma.machines.findUnique({ where: { id: machineId } })
   if (!machine) throw new HttpError(404, 'Machine not found')
 
   const socket = tcpService
@@ -29,7 +30,7 @@ const sendCommand = async (body: CheckMachineStatusType) => {
   if (!socket) throw new HttpError(500, 'ยังไม่มีการเชื่อมต่อกับ PLC')
 
   try {
-    const running = await getRunning(id)
+    const running = await getRunning(machineId)
     const checkResult = await checkMachineStatus(socket, body, running)
 
     return {
@@ -49,33 +50,38 @@ const sendCommand = async (body: CheckMachineStatusType) => {
 }
 
 const sendCommandM = async (body: CheckMachineStatusType) => {
-  const { command, floor, position, qty, id } = body
+  const { command, floor, position, qty, machineId } = body
 
-  const commandKey = command?.toUpperCase() as keyof typeof PlcCommand
-  const plcCmd = PlcCommand[commandKey]
+  const commandValue = command?.trim().toUpperCase()
+  const plcCmd = PlcCommand[commandValue as keyof typeof PlcCommand]
 
   if (!plcCmd) {
     throw new HttpError(400, 'Invalid command')
   }
 
-  if (plcCmd === PlcCommand.ShowModules) {
+  if (plcCmd === PlcCommand.M32) {
     if (floor === undefined || position === undefined || qty === undefined) {
       throw new HttpError(400, 'Missing params for ShowModules (m32)')
     }
   }
 
   try {
-    const running = await getRunning(id)
-    const socket = tcpService.getConnectedSockets()[0]
+    const running = await getRunning(machineId)
+
+    const findMachine = await prisma.machines.findUnique({
+      where: { id: machineId }
+    })
+
+    const socket = tcpService.getConnectedSockets().find((f) => f.remoteAddress === findMachine?.IP)
 
     if (!socket) {
       throw new HttpError(500, 'ยังไม่มีการเชื่อมต่อกับ PLC')
     }
 
     const message =
-      plcCmd === PlcCommand.ShowModules
-        ? createPlcCommand(floor!, position!, qty!, plcCmd, running, 0)
-        : createSimpleCommand(plcCmd, running)
+      plcCmd === PlcCommand.M32
+        ? createPlcCommand(floor!, position!, qty!, String(commandValue), running, 0)
+        : createSimpleCommand(String(commandValue), running)
 
     console.log('📤 Sending to PLC:', message)
     socket.write(message)
@@ -104,7 +110,8 @@ const sendCommandFromQueue = async (
   floor: number,
   position: number,
   qty: number,
-  machineId: string
+  machineId: string,
+  orderId?: string
 ) => {
   if (!floor || !qty || !position || !machineId) {
     throw new HttpError(400, 'Missing payload values')
@@ -119,19 +126,17 @@ const sendCommandFromQueue = async (
   if (!socket) throw new HttpError(500, 'ยังไม่มีการเชื่อมต่อกับ PLC')
 
   try {
-    const running = await getRunning(machineId)
-
     const bodyData: CheckMachineStatusType = {
       floor,
       position,
       qty,
-      id: machineId
+      machineId: machineId,
+      orderId
     }
 
     const checkResult = await checkMachineStatusShared(
       socket,
-      bodyData,
-      running
+      bodyData
     )
 
     return {
