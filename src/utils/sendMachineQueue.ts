@@ -9,7 +9,7 @@ const checkMachineStatusShared = async (
   socket: Socket,
   bodyData: CheckMachineStatusType
 ): Promise<CommandResult> => {
-  const { floor, id, position, qty, orderId } = bodyData
+  const { floor, machineId, position, qty, orderId } = bodyData
 
   let mode: PlcCommand = PlcCommand.DispenseRight
 
@@ -19,7 +19,7 @@ const checkMachineStatusShared = async (
     PlcCommand.CheckShelf
   ]) {
     try {
-      const runningCheck = await getMachineRunningCheck(id)
+      const runningCheck = await getMachineRunningCheck(machineId)
       const result = await sendCommandtoCheckMachineStatusShared(
         cmd,
         runningCheck,
@@ -65,7 +65,7 @@ const checkMachineStatusShared = async (
     }
   }
 
-  const running = await getRunning(id)
+  const running = await getRunning(machineId)
 
   const message = createPlcCommand(floor, position, qty, mode, running)
   console.log('📤 Final PLC command:', message)

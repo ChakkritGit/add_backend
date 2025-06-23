@@ -48,7 +48,7 @@ server.listen(serverPort, async () => {
 
   try {
     await rabbitService.init()
-    await rabbitService.listenToQueue('orders')
+    // await rabbitService.listenToQueue('orders')
   } catch (error) {
     console.error('RabbitMQ Error: ', error)
   }

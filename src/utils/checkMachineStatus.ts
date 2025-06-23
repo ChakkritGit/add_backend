@@ -50,7 +50,7 @@ const checkMachineStatus = async (
   bodyData: CheckMachineStatusType,
   running: number
 ): Promise<{ status: number; data: string }> => {
-  const { floor, id, position, qty } = bodyData
+  const { floor, machineId, position, qty } = bodyData
 
   let mode: PlcCommand = PlcCommand.DispenseRight
 
@@ -60,7 +60,7 @@ const checkMachineStatus = async (
     PlcCommand.CheckShelf
   ]) {
     try {
-      const runningCheck = await getMachineRunningCheck(id)
+      const runningCheck = await getMachineRunningCheck(machineId)
       const result = await sendCommandtoCheckMachineStatus(
         cmd,
         runningCheck,

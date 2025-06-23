@@ -707,6 +707,7 @@ const findOrders = async (condition: string[]): Promise<Orders[]> => {
 
 const clearAllOrder = async (): Promise<string> => {
   try {
+    await RabbitMQService.getInstance().cancelQueue('orders')
     await prisma.$transaction([
       prisma.orders.deleteMany(),
       prisma.prescription.deleteMany(),
@@ -721,7 +722,7 @@ const clearAllOrder = async (): Promise<string> => {
         }
       }),
       prisma.machines.update({
-        where: { id: 'MAC-fa5e8202-1749-4fc7-93b9-0e4b373a56e9' },
+        where: { id: 'MAC-6908c3a0-06d9-4a2b-8f27-1219601d2db0' },
         data: { MachineSlot1: false, MachineSlot2: false }
       })
     ])

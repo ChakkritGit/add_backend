@@ -18,7 +18,7 @@ orderRouter.get('/', getOrder)
 orderRouter.post('/dispense/:rfid', dispenseOrder)
 orderRouter.post('/status/pending/:id/:presId', updateStatusPending)
 orderRouter.post('/status/receive/:id/:presId', updateStatusReceive)
-orderRouter.post('/status/complete/:id/:presId', updateStatusComplete)
+orderRouter.post('/status/complete/:id/:presId', updateStatusComplete) //ตัดยา
 orderRouter.post('/status/error/:id/:presId', updateStatusRrror)
 orderRouter.post('/status/ready/:id/:presId', updateStatusReady)
 orderRouter.post('/slot/update/:orderId', updateSlot)

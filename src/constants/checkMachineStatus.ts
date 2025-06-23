@@ -1,21 +1,8 @@
-import { PlcCommand } from '@/types/checkMachine'
 import { pad } from '@/utils/padStart'
 
 const checkCommands = ['M38', 'M39', 'M40']
 const successStatuses = ['34', '35', '36', '30', '20', '36', '37']
-const failStatuses = [
-  '37',
-  '33',
-  '21',
-  '22',
-  '23',
-  '24',
-  '25',
-  '26',
-  '27',
-  '31',
-  '32'
-]
+const failStatuses = ['37','33','21','22','23','24','25','26','27','31','32']
 
 const calculateChecksum = (
   floor: number,
@@ -44,7 +31,7 @@ const createPlcCommand = (
   floor: number,
   position: number,
   qty: number,
-  mode: PlcCommand,
+  mode: string,
   running: number,
   color: number = 1
 ): string => {
@@ -70,7 +57,7 @@ const createPlcCommand = (
 }
 
 const createSimpleCommand = (
-  mode: PlcCommand,
+  mode: string,
   running: number,
   color: number = 0
 ): string => {
