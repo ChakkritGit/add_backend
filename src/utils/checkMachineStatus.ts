@@ -52,7 +52,7 @@ const checkMachineStatus = async (
 ): Promise<{ status: number; data: string }> => {
   const { floor, machineId, position, qty } = bodyData
 
-  let mode: PlcCommand = PlcCommand.DispenseRight
+  let mode: PlcCommandTwo = PlcCommandTwo.DispenseRight
 
   for (const cmd of [
     PlcCommandTwo.CheckDoor,
@@ -70,9 +70,9 @@ const checkMachineStatus = async (
 
       if (cmd === PlcCommandTwo.CheckTray) {
         if (status === '35') {
-          mode = PlcCommand.DispenseLeft
+          mode = PlcCommandTwo.DispenseLeft
         } else if (status === '34' || status === '36') {
-          mode = PlcCommand.DispenseRight
+          mode = PlcCommandTwo.DispenseRight
         } else if (failStatuses.includes(status)) {
           throw new Error(`❌ เครื่องไม่พร้อม (${cmd}) -> ${status}`)
         } else {

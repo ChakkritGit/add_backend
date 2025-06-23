@@ -11,7 +11,7 @@ const checkMachineStatusShared = async (
 ): Promise<CommandResult> => {
   const { floor, machineId, position, qty, orderId } = bodyData
 
-  let mode: PlcCommand = PlcCommand.DispenseRight
+  let mode: PlcCommandTwo = PlcCommandTwo.DispenseRight
 
   for (const cmd of [
     PlcCommandTwo.CheckDoor,
@@ -35,7 +35,7 @@ const checkMachineStatusShared = async (
               slot: 'M02'
             }
           )
-          mode = PlcCommand.DispenseLeft
+          mode = PlcCommandTwo.DispenseLeft
         } else if (status === '34' || status === '36') {
           await axios.post(
             `http://localhost:3000/api/orders/slot/update/${orderId}`,
@@ -43,7 +43,7 @@ const checkMachineStatusShared = async (
               slot: 'M01'
             }
           )
-          mode = PlcCommand.DispenseRight
+          mode = PlcCommandTwo.DispenseRight
         } else if (failStatuses.includes(status)) {
           throw new PLCStatusError(`❌ เครื่องไม่พร้อม (${cmd}) -> ${status}`)
         } else {

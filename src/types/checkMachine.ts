@@ -28,17 +28,19 @@ enum PlcCommand {
   M35 = 'UnlockLeft',
   M36 = 'OffRight',
   M37 = 'OffLeft',
-  DispenseRight = "DispenseRight",
-  CheckDoor = "CheckDoor",
-  CheckTray = "CheckTray",
-  CheckShelf = "CheckShelf",
-  DispenseLeft = "DispenseLeft"
+  DispenseRight = 'DispenseRight',
+  CheckDoor = 'CheckDoor',
+  CheckTray = 'CheckTray',
+  CheckShelf = 'CheckShelf',
+  DispenseLeft = 'DispenseLeft'
 }
 
 enum PlcCommandTwo {
   CheckDoor = 'M38',
   CheckTray = 'M39',
   CheckShelf = 'M40',
+  DispenseRight = 'M01',
+  DispenseLeft = 'M02'
 }
 
 enum PlcStatus {
