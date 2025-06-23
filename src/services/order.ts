@@ -564,23 +564,24 @@ const findOrders = async (condition: string[]): Promise<Orders[]> => {
 
 const clearAllOrder = async (): Promise<string> => {
   try {
+    await RabbitMQService.getInstance().cancelQueue('orders')
     await prisma.$transaction([
       prisma.orders.deleteMany(),
       prisma.prescription.deleteMany(),
-      prisma.inventory.updateMany({
-        // where: {
-        //   InventoryQty: {
-        //     lt: 10
-        //   }
-        // },
-        data: {
-          InventoryQty: 3
-        }
-      }),
-      prisma.machines.update({
-        where: { id: 'MAC-fa5e8202-1749-4fc7-93b9-0e4b373a56e9' },
-        data: { MachineSlot1: false, MachineSlot2: false }
-      })
+      // prisma.inventory.updateMany({
+      //   // where: {
+      //   //   InventoryQty: {
+      //   //     lt: 10
+      //   //   }
+      //   // },
+      //   data: {
+      //     InventoryQty: 3
+      //   }
+      // }),
+      // prisma.machines.update({
+      //   where: { id: 'MAC-fa5e8202-1749-4fc7-93b9-0e4b373a56e9' },
+      //   data: { MachineSlot1: false, MachineSlot2: false }
+      // })
     ])
     return 'Successfully'
   } catch (error) {

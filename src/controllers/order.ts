@@ -27,6 +27,7 @@ const dispenseOrder = async (
   try {
     const { id } = req.body
     const rfid = req.params.rfid
+    const rabbitService = RabbitMQService.getInstance()
 
     if (!id || !rfid) {
       throw new HttpError(
@@ -57,6 +58,7 @@ const dispenseOrder = async (
 
     const response = await getPharmacyPres(rfid)
     const value = await createPresService(response)
+    await rabbitService.listenToQueue('orders')
     const cmd: PlcSendMessage[] = value
       .map(item => {
         return {
