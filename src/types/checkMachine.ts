@@ -35,6 +35,12 @@ enum PlcCommand {
   DispenseLeft = "DispenseLeft"
 }
 
+enum PlcCommandTwo {
+  CheckDoor = 'M38',
+  CheckTray = 'M39',
+  CheckShelf = 'M40',
+}
+
 enum PlcStatus {
   Success = '30',
   DispenseLeftReady = '35',
@@ -45,4 +51,4 @@ enum PlcStatus {
 }
 
 export type { CheckMachineStatusType }
-export { PLCStatusError, PlcCommand, PlcStatus }
+export { PLCStatusError, PlcCommand, PlcStatus, PlcCommandTwo }

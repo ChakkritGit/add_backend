@@ -1,4 +1,4 @@
-import { CheckMachineStatusType, PlcCommand, PLCStatusError } from '@/types/checkMachine'
+import { CheckMachineStatusType, PlcCommand, PlcCommandTwo, PLCStatusError } from '@/types/checkMachine'
 import { getMachineRunningCheck, getRunning } from './checkMachineStatus'
 import { pad } from './padStart'
 import { createPlcCommand } from '@/constants/checkMachineStatus'
@@ -14,9 +14,9 @@ const checkMachineStatusShared = async (
   let mode: PlcCommand = PlcCommand.DispenseRight
 
   for (const cmd of [
-    PlcCommand.CheckDoor,
-    PlcCommand.CheckTray,
-    PlcCommand.CheckShelf
+    PlcCommandTwo.CheckDoor,
+    PlcCommandTwo.CheckTray,
+    PlcCommandTwo.CheckShelf
   ]) {
     try {
       const runningCheck = await getMachineRunningCheck(machineId)
@@ -27,7 +27,7 @@ const checkMachineStatusShared = async (
       )
       const status = result.status
 
-      if (cmd === PlcCommand.CheckTray) {
+      if (cmd === PlcCommandTwo.CheckTray) {
         if (status === '35') {
           await axios.post(
             `http://localhost:3000/api/orders/slot/update/${orderId}`,

@@ -711,7 +711,6 @@ const clearAllOrder = async (): Promise<string> => {
     await prisma.$transaction([
       prisma.orders.deleteMany(),
       prisma.prescription.deleteMany(),
-<<<<<<< HEAD
       // prisma.inventory.updateMany({
       //   // where: {
       //   //   InventoryQty: {
@@ -726,7 +725,6 @@ const clearAllOrder = async (): Promise<string> => {
       //   where: { id: 'MAC-fa5e8202-1749-4fc7-93b9-0e4b373a56e9' },
       //   data: { MachineSlot1: false, MachineSlot2: false }
       // })
-=======
       prisma.inventory.updateMany({
         // where: {
         //   InventoryQty: {
@@ -741,7 +739,6 @@ const clearAllOrder = async (): Promise<string> => {
         where: { id: 'MAC-6908c3a0-06d9-4a2b-8f27-1219601d2db0' },
         data: { MachineSlot1: false, MachineSlot2: false }
       })
->>>>>>> a13e50aad2ce4750443547cc93fb413c8e466d55
     ])
     return 'Successfully'
   } catch (error) {
