@@ -9,6 +9,7 @@ import {
   getPharmacyPres,
   sendOrder,
   statusPrescription,
+  updateOrderSlot,
   updateStatusOrderServicePending
 } from '@/services/order'
 import { BaseResponse } from '@/types/global'
@@ -25,13 +26,14 @@ const dispenseOrder = async (
   next: NextFunction
 ) => {
   try {
-    const { id } = req.body
+    const { machineId } = req.body
     const rfid = req.params.rfid
+    const rabbitService = RabbitMQService.getInstance()
 
-    if (!id || !rfid) {
+    if (!machineId || !rfid) {
       throw new HttpError(
         500,
-        `Machine ID: ${id}, Or RFID: ${rfid}, not found!`
+        `Machine ID: ${machineId}, Or RFID: ${rfid}, not found!`
       )
     }
 
@@ -43,7 +45,7 @@ const dispenseOrder = async (
     }
 
     const findMachine = await prisma.machines.findUnique({
-      where: { id }
+      where: { id: machineId }
     })
 
     if (findMachine && connectedSockets.length > 0) {
@@ -57,12 +59,13 @@ const dispenseOrder = async (
 
     const response = await getPharmacyPres(rfid)
     const value = await createPresService(response)
+      await rabbitService.listenToQueue('orders')
     const cmd: PlcSendMessage[] = value
       .map(item => {
         return {
-          machineId: id,
+          machineId: machineId,
           presId: item.PrescriptionId,
-          orderId: item.id,
+          orderId: item.OrderItemId,
           floor: item.Floor,
           position: item.Position,
           qty: item.OrderQty
@@ -219,6 +222,27 @@ const updateStatusReady = async (
   }
 }
 
+const updateSlot = async (
+  req: Request,
+  res: Response<BaseResponse<Orders>>,
+  next: NextFunction
+) => {
+  try {
+    const { orderId } = req.params
+    const { slot } = req.body as { slot: string }
+    res.status(200).json({
+      message: 'Success',
+      success: true,
+      data: await updateOrderSlot(
+        orderId,
+        slot
+      )
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
 const cancelOrder = async (
   req: Request,
   res: Response<BaseResponse<string>>
@@ -261,5 +285,6 @@ export {
   updateStatusRrror,
   updateStatusReady,
   cancelOrder,
-  clearOrder
+  clearOrder,
+  updateSlot
 }

@@ -82,7 +82,8 @@ class RabbitMQService {
           order.floor,
           order.position,
           order.qty,
-          order.machineId
+          order.machineId,
+          order.orderId
         )
 
         if (dispensed) {

@@ -2,8 +2,9 @@ type CheckMachineStatusType = {
   floor: number
   position: number
   qty: number
-  id: string
-  command?: string
+  machineId: string
+  command?: PlcCommand
+  orderId?: string
 }
 
 class PLCStatusError extends Error {
@@ -14,19 +15,24 @@ class PLCStatusError extends Error {
 }
 
 enum PlcCommand {
-  DispenseRight = 'M01',
-  DispenseLeft = 'M02',
-  CheckDoor = 'M38',
-  CheckTray = 'M39',
-  CheckShelf = 'M40',
-  Reboot = 'M30',
-  Reset = 'M31',
-  ShowModules = 'M32',
-  HideModules = 'M33',
-  UnlockRight = 'M34',
-  UnlockLeft = 'M35',
-  OffRight = 'M36',
-  OffLeft = 'M37'
+  M01 = 'DispenseRight',
+  M02 = 'DispenseLeft',
+  M38 = 'CheckDoor',
+  M39 = 'CheckTray',
+  M40 = 'CheckShelf',
+  M30 = 'Reboot',
+  M31 = 'Reset',
+  M32 = 'ShowModules',
+  M33 = 'HideModules',
+  M34 = 'UnlockRight',
+  M35 = 'UnlockLeft',
+  M36 = 'OffRight',
+  M37 = 'OffLeft',
+  DispenseRight = "DispenseRight",
+  CheckDoor = "CheckDoor",
+  CheckTray = "CheckTray",
+  CheckShelf = "CheckShelf",
+  DispenseLeft = "DispenseLeft"
 }
 
 enum PlcStatus {
