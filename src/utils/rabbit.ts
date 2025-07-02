@@ -1,10 +1,11 @@
-import { PlcSendMessage } from '@/types/rabbit'
+import { PlcSendMessage } from '../types/rabbit'
 import amqp, { Channel, ChannelModel, ConsumeMessage } from 'amqplib'
 import dotenv from 'dotenv'
 import { tcpService } from './tcp'
 import axios from 'axios'
 import { socketService } from './socket'
-import { sendCommandFromQueue } from '@/services/plc'
+import { sendCommandFromQueue } from '../services/plc'
+import { delay } from '../constants/checkMachineStatus'
 
 dotenv.config()
 
@@ -78,6 +79,10 @@ class RabbitMQService {
         )
         socketService.getIO().emit('res_message', `Create : 'update order'`)
 
+        console.info("Rabbit Message: ", message)
+
+        await delay(500)
+
         const dispensed = await sendCommandFromQueue(
           order.floor,
           order.position,
@@ -148,7 +153,7 @@ class RabbitMQService {
 
   async cancelQueue (queue: string): Promise<void> {
     try {
-      await this.channel.purgeQueue(queue)
+      await this.channel.deleteQueue(queue)
     } catch (err) {
       console.error('Failed to purge queue:', err)
       throw err

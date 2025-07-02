@@ -1,12 +1,12 @@
-import prisma from '@/configs/prisma'
-import { pad } from '@/utils/padStart'
+import prisma from '../configs/prisma'
+import { pad } from '../utils/padStart'
 import { Socket } from 'net'
-import { CheckMachineStatusType, PlcCommand } from '@/types/checkMachine'
+import { CheckMachineStatusType, PlcCommand, PlcCommandTwo } from '../types/checkMachine'
 import {
   createPlcCommand,
   failStatuses,
   successStatuses
-} from '@/constants/checkMachineStatus'
+} from '../constants/checkMachineStatus'
 
 const sendCommandtoCheckMachineStatus = async (
   cmd: string,
@@ -52,12 +52,12 @@ const checkMachineStatus = async (
 ): Promise<{ status: number; data: string }> => {
   const { floor, machineId, position, qty } = bodyData
 
-  let mode: PlcCommand = PlcCommand.DispenseRight
+  let mode: PlcCommandTwo = PlcCommandTwo.DispenseRight
 
   for (const cmd of [
-    PlcCommand.CheckDoor,
-    PlcCommand.CheckTray,
-    PlcCommand.CheckShelf
+    PlcCommandTwo.CheckDoor,
+    PlcCommandTwo.CheckTray,
+    PlcCommandTwo.CheckShelf
   ]) {
     try {
       const runningCheck = await getMachineRunningCheck(machineId)
@@ -68,11 +68,11 @@ const checkMachineStatus = async (
       )
       const status = result.status
 
-      if (cmd === PlcCommand.CheckTray) {
+      if (cmd === PlcCommandTwo.CheckTray) {
         if (status === '35') {
-          mode = PlcCommand.DispenseLeft
+          mode = PlcCommandTwo.DispenseLeft
         } else if (status === '34' || status === '36') {
-          mode = PlcCommand.DispenseRight
+          mode = PlcCommandTwo.DispenseRight
         } else if (failStatuses.includes(status)) {
           throw new Error(`❌ เครื่องไม่พร้อม (${cmd}) -> ${status}`)
         } else {

@@ -9,7 +9,7 @@ import {
   updateStatusReady,
   updateStatusReceive,
   updateStatusRrror
-} from '@/controllers/order'
+} from '../controllers/order'
 import { Router } from 'express'
 
 const orderRouter: Router = Router()

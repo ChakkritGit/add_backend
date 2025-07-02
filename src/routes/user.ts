@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { upload } from '@/middlewares/upload'
-import { deleteUser, editeUser, getUser, getUserById } from '@/controllers/user'
+import { upload } from '../middlewares/upload'
+import { deleteUser, editeUser, getUser, getUserById } from '../controllers/user'
 
 const userRouter: Router = Router()
 

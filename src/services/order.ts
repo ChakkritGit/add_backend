@@ -1,16 +1,17 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { Orders } from '@prisma/client'
-import RabbitMQService from '@/utils/rabbit'
-import prisma from '@/configs/prisma'
-import { Prescription, PrescriptionList, ResponsePres } from '@/types/order'
-import { getDateFormat } from '@/utils/dateFormat'
-import { HttpError } from '@/configs/errorPipe'
-import { tcpService } from '@/utils/tcp'
-import { socketService } from '@/utils/socket'
-import { pad } from '@/utils/padStart'
+import RabbitMQService from '../utils/rabbit'
+import prisma from '../configs/prisma'
+import { Prescription, PrescriptionList, ResponsePres } from '../types/order'
+import { getDateFormat } from '../utils/dateFormat'
+import { HttpError } from '../configs/errorPipe'
+import { tcpService } from '../utils/tcp'
+import { socketService } from '../utils/socket'
+import { pad } from '../utils/padStart'
 import axios, { AxiosError } from 'axios'
-import { PlcSendMessage } from '@/types/rabbit'
-import { getMachineRunningCheck, getRunning } from '@/utils/checkMachineStatus'
+import { PlcSendMessage } from '../types/rabbit'
+import { getMachineRunningCheck, getRunning } from '../utils/checkMachineStatus'
+import { delay } from '../constants/checkMachineStatus'
 
 const rabbitService = RabbitMQService.getInstance()
 
@@ -26,19 +27,123 @@ const statusPrescription = async (presNo: string, status: string) => {
   }
 }
 
-const getPharmacyPres = async (rfid: string) => {
-  try {
-    const response = await axios.get<ResponsePres>(
-      `${process.env.PHARMACY_URL}/getPresTest/${rfid}`
-    )
-    return response.data.data
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      if (error.response?.status === 404) {
-        throw new HttpError(404, 'Data not found')
+const getPharmacyPres = () => {
+  // try {
+  //   const response = await axios.get<ResponsePres>(
+  //     `${process.env.PHARMACY_URL}/getPresTest/${rfid}`
+  //   )
+  //   return response.data.data
+  // } catch (error) {
+  //   if (error instanceof AxiosError) {
+  //     if (error.response?.status === 404) {
+  //       throw new HttpError(404, 'Data not found')
+  //     }
+  //   }
+  //   throw error
+  // }
+
+  return {
+    "RFID": "7",
+    "PrescriptionNo": "TEST-1024",
+    "HN": "52867933",
+    "PatientName": "นาง ทดสอบ66 ระบบ66",
+    "Prescription": [
+      {
+        "f_prescriptionno": "TEST-1024",
+        "f_prescriptiondate": "20240305",
+        "f_hn": "52867933",
+        "f_an": "57651113",
+        "f_patientname": "นาง ทดสอบ66 ระบบ66",
+        "f_wardcode": "603",
+        "f_warddesc": "นวมินทรฯ 17 เหนือ",
+        "f_prioritycode": "N",
+        "f_prioritydesc": "New",
+        "f_orderitemcode": "1540000002",
+        "f_orderitemname": "Ferli 6 Tablet",
+        "f_orderqty": 1,
+        "f_orderunitcode": "TAB",
+        "Machine": "ADD",
+        "command": "B0133D0001S1D4321",
+        "f_binlocation": "33",
+        "RowID": "E3F4C1BB-03F5-4564-BBCB-11DA755E2D11"
+      },
+      {
+        "f_prescriptionno": "TEST-1024",
+        "f_prescriptiondate": "20240305",
+        "f_hn": "52867933",
+        "f_an": "57651113",
+        "f_patientname": "นาง ทดสอบ66 ระบบ66",
+        "f_wardcode": "603",
+        "f_warddesc": "นวมินทรฯ 17 เหนือ",
+        "f_prioritycode": "N",
+        "f_prioritydesc": "New",
+        "f_orderitemcode": "1200001878",
+        "f_orderitemname": "Filgrastim (Neutromax) 480 mcg Inj (vial 1.6 mL)",
+        "f_orderqty": 1,
+        "f_orderunitcode": "TAB",
+        "Machine": "ADD",
+        "command": "B0121D0001S1D4321",
+        "f_binlocation": "21",
+        "RowID": "FD6EF258-4BFD-4204-ACC9-1B6E91260BBC"
+      },
+      {
+        "f_prescriptionno": "TEST-1024",
+        "f_prescriptiondate": "20240305",
+        "f_hn": "52867933",
+        "f_an": "57651113",
+        "f_patientname": "นาง ทดสอบ66 ระบบ66",
+        "f_wardcode": "603",
+        "f_warddesc": "นวมินทรฯ 17 เหนือ",
+        "f_prioritycode": "N",
+        "f_prioritydesc": "New",
+        "f_orderitemcode": "P5TTS",
+        "f_orderitemname": "PARACETAMOL TAB. 500 MG (SARA)",
+        "f_orderqty": 5,
+        "f_orderunitcode": "TAB",
+        "Machine": "ADD",
+        "command": "B0115D0010S1D4321",
+        "f_binlocation": "15",
+        "RowID": "8BCEC124-38B4-4A0C-8018-556EE6A9D4A5"
+      },
+      {
+        "f_prescriptionno": "TEST-1024",
+        "f_prescriptiondate": "20240305",
+        "f_hn": "52867933",
+        "f_an": "57651113",
+        "f_patientname": "นาง ทดสอบ66 ระบบ66",
+        "f_wardcode": "603",
+        "f_warddesc": "นวมินทรฯ 17 เหนือ",
+        "f_prioritycode": "N",
+        "f_prioritydesc": "New",
+        "f_orderitemcode": "VCTTG5",
+        "f_orderitemname": "VITAMIN C # TAB 500 MG @ (GPO)",
+        "f_orderqty": 3,
+        "f_orderunitcode": "TAB",
+        "Machine": "ADD",
+        "command": "B0124D0003S1D4321",
+        "f_binlocation": "24",
+        "RowID": "3EEAAAAA-E6B2-499D-B381-B98900F7A7EC"
+      },
+      {
+        "f_prescriptionno": "TEST-1024",
+        "f_prescriptiondate": "20240305",
+        "f_hn": "52867933",
+        "f_an": "57651113",
+        "f_patientname": "นาง ทดสอบ66 ระบบ66",
+        "f_wardcode": "603",
+        "f_warddesc": "นวมินทรฯ 17 เหนือ",
+        "f_prioritycode": "N",
+        "f_prioritydesc": "New",
+        "f_orderitemcode": "1540000001",
+        "f_orderitemname": "Ascorbic Acid Tab 100 Mg",
+        "f_orderqty": 2,
+        "f_orderunitcode": "TAB",
+        "Machine": "ADD",
+        "command": "B0132D0002S1D4321",
+        "f_binlocation": "32",
+        "RowID": "7C85141D-5038-4519-950E-2FB8AE2E607B"
       }
-    }
-    throw error
+    ]
   }
 }
 
@@ -296,6 +401,8 @@ const received = async (drugId: string, id: string): Promise<Orders> => {
 
           if (status.status === '30') {
             // ประตูปิดแล้ว
+            await delay(1500)
+
             rabbitService.acknowledgeMessage()
             socketService
               .getIO()
@@ -308,6 +415,8 @@ const received = async (drugId: string, id: string): Promise<Orders> => {
           if (elapsed > timeout) {
             // ครบเวลา 3 นาที แต่ประตูยังไม่ปิด
             console.error('Timeout: ประตูไม่ปิดภายใน 3 นาที')
+            await delay(1500)
+
             rabbitService.acknowledgeMessage()
             socketService
               .getIO()
@@ -414,28 +523,43 @@ const updateStatusOrderServicePending = async (
         throw new Error('ไม่มีการเชื่อมต่อกับ PLC')
       }
 
-      const running = await getMachineRunningCheck(machineId)
+      const MAX_RETRIES = 5
+      const TIMEOUT_MS = 1500
 
-      return new Promise((resolve, reject) => {
-        const m = parseInt(cmd.slice(1))
-        const sumValue = 0 + 0 + 0 + 0 + 0 + m + 0 + running + 4500
-        const sum = pad(sumValue, 2).slice(-2)
-        const checkMsg = `B00R00C00Q0000L00${cmd}T00N${running}D4500S${sum}`
+      let attempt = 0
 
-        console.log(`📤 Sending status check command: ${checkMsg}`)
-        socket.write(checkMsg)
+      return new Promise(async (resolve, reject) => {
+        const running = await getMachineRunningCheck(machineId)
 
-        // const timeout = setTimeout(() => {
-        //   socket.off('data', onData)
-        //   reject(new Error('Timeout: PLC ไม่ตอบสนองภายใน 5 วินาที'))
-        // }, 5000)
+        const sendCheckCommand = () => {
+          attempt++
+          if (attempt > MAX_RETRIES) {
+            socket.off('data', onData)
+            return reject(new Error('📛 ไม่ได้รับการตอบกลับจาก PLC ภายใน 5 ครั้ง'))
+          }
+
+          const m = parseInt(cmd.slice(1))
+          const sumValue = 0 + 0 + 0 + 0 + 0 + m + 0 + running + 4500
+          const sum = pad(sumValue, 2).slice(-2)
+          const checkMsg = `B00R00C00Q0000L00${cmd}T00N${running}D4500S${sum}`
+
+          console.log(`📤 [Attempt ${attempt}] Sending status check command: ${checkMsg}`)
+          socket.write(checkMsg)
+
+          timeoutId = setTimeout(() => {
+            console.warn(`⌛ Timeout (1.5s) on attempt ${attempt}, retrying...`)
+            sendCheckCommand()
+          }, TIMEOUT_MS)
+        }
+
+        let timeoutId: NodeJS.Timeout
 
         const onData = (data: Buffer) => {
+          clearTimeout(timeoutId)
+          socket.off('data', onData)
+
           const message = data.toString()
           const status = message.split('T')[1]?.substring(0, 2) ?? '00'
-
-          // clearTimeout(timeout)
-          socket.off('data', onData)
 
           console.log(
             `📥 Response from PLC (${cmd}):`,
@@ -447,6 +571,7 @@ const updateStatusOrderServicePending = async (
         }
 
         socket.on('data', onData)
+        sendCheckCommand()
       })
     }
 
@@ -478,6 +603,9 @@ const updateStatusOrderServicePending = async (
             const sumValueM36 = 0 + 0 + 0 + 0 + 0 + 36 + 0 + running + 4500
             const sumM36 = pad(sumValueM36, 2).slice(-2)
             lightOffCommand = `B00R00C00Q0000L00M36T00N${running}D4500S${sumM36}`
+
+            console.log('📤 เปิดประตู: ', checkMsg)
+            socket.write(checkMsg)
           } else {
             // M35 - เปิดประตูซ้าย
             const sumValue = 0 + 0 + 0 + 0 + 0 + 35 + 0 + running + 4500
@@ -488,10 +616,10 @@ const updateStatusOrderServicePending = async (
             const sumValueM37 = 0 + 0 + 0 + 0 + 0 + 37 + 0 + running + 4500
             const sumM37 = pad(sumValueM37, 2).slice(-2)
             lightOffCommand = `B00R00C00Q0000L00M37T00N${running}D4500S${sumM37}`
-          }
 
-          console.log('📤 เปิดประตู: ', checkMsg)
-          socket.write(checkMsg)
+            console.log('📤 เปิดประตู: ', checkMsg)
+            socket.write(checkMsg)
+          }
 
           // รอ response จาก PLC
           const response = await new Promise<string>((resolve, reject) => {
@@ -501,11 +629,6 @@ const updateStatusOrderServicePending = async (
             }
 
             socket.on('data', onData)
-
-            setTimeout(() => {
-              socket.off('data', onData)
-              reject(new Error('Timeout: PLC ไม่ตอบกลับภายใน 5 วินาที'))
-            }, 5000)
           })
 
           const convertToText = response.split("T")[1]?.slice(0, 2)
@@ -515,7 +638,7 @@ const updateStatusOrderServicePending = async (
             while (!doorLocked) {
               const doorStatus = await checkMachineStatus('M38')
               const trayStatus = await checkMachineStatus('M39')
-              console.log(`🚪 Door status check round ${round}:`, doorStatus.status)
+              console.info(`🚪 Door status check round ${round}:`, doorStatus.status)
 
               const isLeftDoorLocked = doorStatus.status === '31' || doorStatus.status === '30'
               const isRightDoorLocked = doorStatus.status === '32' || doorStatus.status === '30'
@@ -526,7 +649,7 @@ const updateStatusOrderServicePending = async (
               if (isLeftDoorLocked && isLeftTrayEmpty) {
                 doorLocked = true
 
-                console.log('✅ ประตูปิดแล้ว ส่งคำสั่งหยุดไฟ: ', lightOffCommand)
+                console.info('✅ ประตูปิดแล้ว ส่งคำสั่งหยุดไฟ: ', lightOffCommand)
                 socket.write(lightOffCommand)
 
                 if (rabbitService.getChannel) {
@@ -539,6 +662,8 @@ const updateStatusOrderServicePending = async (
                     console.log(`📦 Messages remaining in queue: ${messageCount}`)
 
                     if (messageCount > 0) {
+                      await delay(300)
+
                       rabbitService.acknowledgeMessage?.()
                       socketService.getIO?.().emit('res_message', `Receive Order: ${result?.id}`)
                     } else {
@@ -552,7 +677,7 @@ const updateStatusOrderServicePending = async (
               } else if (isRightDoorLocked && isRughtTrayEmpty) {
                 doorLocked = true
 
-                console.log('✅ ประตูปิดแล้ว ส่งคำสั่งหยุดไฟ: ', lightOffCommand)
+                console.info('✅ ประตูปิดแล้ว ส่งคำสั่งหยุดไฟ: ', lightOffCommand)
                 socket.write(lightOffCommand)
 
                 if (rabbitService.getChannel) {
@@ -565,6 +690,8 @@ const updateStatusOrderServicePending = async (
                     console.log(`📦 Messages remaining in queue: ${messageCount}`)
 
                     if (messageCount > 0) {
+                      await delay(50)
+
                       rabbitService.acknowledgeMessage?.()
                       socketService.getIO?.().emit('res_message', `Receive Order: ${result?.id}`)
                     } else {
@@ -630,6 +757,8 @@ const updateStatusOrderServicePending = async (
             ) {
               console.log(`✅ Door for ${traySideToCheck} side is locked`)
               doorLocked = true
+
+              await delay(1500)
 
               rabbitService.acknowledgeMessage?.()
               socketService.getIO?.().emit('res_message', `Receive Order: ${result?.id}`)
@@ -711,6 +840,20 @@ const clearAllOrder = async (): Promise<string> => {
     await prisma.$transaction([
       prisma.orders.deleteMany(),
       prisma.prescription.deleteMany(),
+      // prisma.inventory.updateMany({
+      //   // where: {
+      //   //   InventoryQty: {
+      //   //     lt: 10
+      //   //   }
+      //   // },
+      //   data: {
+      //     InventoryQty: 3
+      //   }
+      // }),
+      // prisma.machines.update({
+      //   where: { id: 'MAC-fa5e8202-1749-4fc7-93b9-0e4b373a56e9' },
+      //   data: { MachineSlot1: false, MachineSlot2: false }
+      // })
       prisma.inventory.updateMany({
         // where: {
         //   InventoryQty: {

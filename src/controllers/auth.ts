@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express'
 import { Users } from '@prisma/client'
-import { GenQr } from '@/types/user'
-import { BaseResponse } from '@/types/global'
+import { GenQr } from '../types/user'
+import { BaseResponse } from '../types/global'
 import {
   createQrEncrypt,
   userLogin,
   userLoginQR,
   userRegister
-} from '@/services/auth'
+} from '../services/auth'
 
 const createUser = async (
   req: Request,

@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express'
 import { Drugs } from '@prisma/client'
-import { BaseResponse } from '@/types/global'
+import { BaseResponse } from '../types/global'
 import {
   addDrug,
   deleteDrugService,
   editDrugService,
   findDrug,
   findDrugId
-} from '@/services/drug'
+} from '../services/drug'
 
 const createDrug = async (
   req: Request,

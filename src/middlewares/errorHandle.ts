@@ -1,7 +1,7 @@
 import { Response } from 'express'
 
-import { HttpError } from '@/configs/errorPipe'
-import { BaseResponse } from '@/types/global'
+import { HttpError } from '../configs/errorPipe'
+import { BaseResponse } from '../types/global'
 
 export const globalErrorHanlder = (
   error: unknown,

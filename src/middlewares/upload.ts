@@ -8,7 +8,7 @@ import multer, {
   Multer,
   StorageEngine
 } from 'multer'
-import { HttpError } from '@/configs/errorPipe'
+import { HttpError } from '../configs/errorPipe'
 
 type DestinationCallback = (error: Error | null, destination: string) => void
 type FileNameCallback = (error: Error | null, filename: string) => void

@@ -1,5 +1,5 @@
-import { HttpError } from '@/configs/errorPipe'
-import prisma from '@/configs/prisma'
+import { HttpError } from '../configs/errorPipe'
+import prisma from '../configs/prisma'
 import { Machines } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { v4 as uuidv4 } from 'uuid'

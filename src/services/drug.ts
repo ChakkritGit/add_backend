@@ -4,9 +4,9 @@ import { Drugs } from '@prisma/client'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import { getDrugImage } from '../utils/image'
 import { v4 as uuidv4 } from 'uuid'
-import { HttpError } from '@/configs/errorPipe'
-import prisma from '@/configs/prisma'
-import { getDateFormat } from '@/utils/dateFormat'
+import { HttpError } from '../configs/errorPipe'
+import prisma from '../configs/prisma'
+import { getDateFormat } from '../utils/dateFormat'
 
 const addDrug = async (
   body: Drugs,

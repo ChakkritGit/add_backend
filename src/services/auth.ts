@@ -5,11 +5,11 @@ import { v4 as uuidv4 } from 'uuid'
 import { sign } from 'jsonwebtoken'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 import CryptoJS from 'crypto-js'
-import prisma from '@/configs/prisma'
-import { HttpError } from '@/configs/errorPipe'
-import { GenQr } from '@/types/user'
-import { hashPassword, hashPasswordCompare } from '@/utils/hash'
-import { getDateFormat } from '@/utils/dateFormat'
+import prisma from '../configs/prisma'
+import { HttpError } from '../configs/errorPipe'
+import { GenQr } from '../types/user'
+import { hashPassword, hashPasswordCompare } from '../utils/hash'
+import { getDateFormat } from '../utils/dateFormat'
 // import { jwtDecode } from "jwt-decode";
 
 const userRegister = async (

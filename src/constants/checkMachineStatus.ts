@@ -1,4 +1,4 @@
-import { pad } from '@/utils/padStart'
+import { pad } from '../utils/padStart'
 
 const checkCommands = ['M38', 'M39', 'M40']
 const successStatuses = ['34', '35', '36', '30', '20', '36', '37']
@@ -125,6 +125,10 @@ const interpretPlcResponse = (raw: string): string => {
   }
 }
 
+const delay = (ms: number) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export {
   checkCommands,
   successStatuses,
@@ -132,5 +136,6 @@ export {
   calculateChecksum,
   createPlcCommand,
   interpretPlcResponse,
-  createSimpleCommand
+  createSimpleCommand,
+  delay
 }

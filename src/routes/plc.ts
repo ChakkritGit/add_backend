@@ -1,4 +1,4 @@
-import { plcSendCommandController, plcSendCommandMController } from '@/controllers/plc'
+import { plcSendCommandController, plcSendCommandMController } from '../controllers/plc'
 import { Router } from 'express'
 
 const plcRouter: Router = Router()

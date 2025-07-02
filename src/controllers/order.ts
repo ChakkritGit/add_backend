@@ -1,5 +1,5 @@
-import { HttpError } from '@/configs/errorPipe'
-import prisma from '@/configs/prisma'
+import { HttpError } from '../configs/errorPipe'
+import prisma from '../configs/prisma'
 import {
   clearAllOrder,
   createPresService,
@@ -11,12 +11,12 @@ import {
   statusPrescription,
   updateOrderSlot,
   updateStatusOrderServicePending
-} from '@/services/order'
-import { BaseResponse } from '@/types/global'
-import { PlcSendMessage } from '@/types/rabbit'
-import RabbitMQService from '@/utils/rabbit'
-import { socketService } from '@/utils/socket'
-import { tcpService } from '@/utils/tcp'
+} from '../services/order'
+import { BaseResponse } from '../types/global'
+import { PlcSendMessage } from '../types/rabbit'
+import RabbitMQService from '../utils/rabbit'
+import { socketService } from '../utils/socket'
+import { tcpService } from '../utils/tcp'
 import { Orders } from '@prisma/client'
 import { NextFunction, Request, Response } from 'express'
 
@@ -57,9 +57,9 @@ const dispenseOrder = async (
       }
     }
 
-    const response = await getPharmacyPres(rfid)
+    const response = getPharmacyPres()
     const value = await createPresService(response)
-      await rabbitService.listenToQueue('orders')
+    await rabbitService.listenToQueue('orders')
     const cmd: PlcSendMessage[] = value
       .map(item => {
         return {

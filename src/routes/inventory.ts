@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { verifyToken } from '@/middlewares/authToken'
+import { verifyToken } from '../middlewares/authToken'
 import {
   addInventory,
   addStock,
@@ -7,7 +7,7 @@ import {
   editInventory,
   findInventory,
   getInventoryList
-} from '@/controllers/inventory'
+} from '../controllers/inventory'
 
 const inventoryRouter: Router = Router()
 

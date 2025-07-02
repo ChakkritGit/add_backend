@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { upload } from "@/middlewares/upload"
-import { checkLogin, createUser, generateQR } from "@/controllers/auth"
+import { upload } from "../middlewares/upload"
+import { checkLogin, createUser, generateQR } from "../controllers/auth"
 // import { verifyToken } from "../middlewares"
 
 const authRouter: Router = Router()

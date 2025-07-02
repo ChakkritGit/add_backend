@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { Inventory } from '@prisma/client'
 
-import { BaseResponse } from '@/types/global'
+import { BaseResponse } from '../types/global'
 import {
   createinventory,
   createStock,
@@ -9,7 +9,7 @@ import {
   inventoryModify,
   inventorySearach,
   Removeinventory
-} from '@/services/inventory'
+} from '../services/inventory'
 
 const addInventory = async (
   req: Request,

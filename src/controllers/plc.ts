@@ -1,4 +1,4 @@
-import { sendCommand, sendCommandM } from '@/services/plc'
+import { sendCommand, sendCommandM } from '../services/plc'
 import { NextFunction, Request, Response } from 'express'
 
 const plcSendCommandController = async (

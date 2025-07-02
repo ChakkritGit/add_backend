@@ -2,10 +2,10 @@ import { Users } from '@prisma/client'
 import fs from 'node:fs'
 import path from 'node:path'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
-import prisma from '@/configs/prisma'
-import { HttpError } from '@/configs/errorPipe'
-import { getDateFormat } from '@/utils/dateFormat'
-import { getUserImage } from '@/utils/image'
+import prisma from '../configs/prisma'
+import { HttpError } from '../configs/errorPipe'
+import { getDateFormat } from '../utils/dateFormat'
+import { getUserImage } from '../utils/image'
 
 const usersList = async (): Promise<Users[]> => {
   try {

@@ -1,4 +1,4 @@
-import { HttpError } from '@/configs/errorPipe'
+import { HttpError } from '../configs/errorPipe'
 import { Request, Response, NextFunction } from 'express'
 import { JsonWebTokenError, verify } from 'jsonwebtoken'
 

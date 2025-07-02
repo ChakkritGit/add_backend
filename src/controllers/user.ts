@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { Users } from '@prisma/client'
-import { BaseResponse } from '@/types/global'
-import { findUsers, modifyUser, removeUser, usersList } from '@/services/user'
+import { BaseResponse } from '../types/global'
+import { findUsers, modifyUser, removeUser, usersList } from '../services/user'
 
 const getUser = async (
   _req: Request,
@@ -73,3 +73,6 @@ const deleteUser = async (
 }
 
 export { getUser, getUserById, editeUser, deleteUser }
+
+
+

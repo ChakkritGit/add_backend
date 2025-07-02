@@ -1,18 +1,18 @@
 
-import prisma from '@/configs/prisma'
-import { tcpService } from '@/utils/tcp'
-import { checkMachineStatus, getRunning } from '@/utils/checkMachineStatus'
+import prisma from '../configs/prisma'
+import { tcpService } from '../utils/tcp'
+import { checkMachineStatus, getRunning } from '../utils/checkMachineStatus'
 import {
   CheckMachineStatusType,
   PlcCommand,
   PLCStatusError
-} from '@/types/checkMachine'
-import { HttpError } from '@/configs/errorPipe'
+} from '../types/checkMachine'
+import { HttpError } from '../configs/errorPipe'
 import {
   createPlcCommand,
   createSimpleCommand
-} from '@/constants/checkMachineStatus'
-import { checkMachineStatusShared } from '@/utils/sendMachineQueue'
+} from '../constants/checkMachineStatus'
+import { checkMachineStatusShared } from '../utils/sendMachineQueue'
 
 const sendCommand = async (body: CheckMachineStatusType) => {
   const { floor, position, qty, machineId } = body
@@ -113,6 +113,8 @@ const sendCommandFromQueue = async (
   machineId: string,
   orderId?: string
 ) => {
+  console.info("Send command called...")
+
   if (!floor || !qty || !position || !machineId) {
     throw new HttpError(400, 'Missing payload values')
   }

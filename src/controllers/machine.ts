@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { Machines } from '@prisma/client'
-import { BaseResponse } from '@/types/global'
+import { BaseResponse } from '../types/global'
 import {
   createMachine,
   findSlotDevice,
@@ -9,7 +9,7 @@ import {
   searchMachine,
   updateMachine,
   updateOrderDeviceSlot
-} from '@/services/machine'
+} from '../services/machine'
 
 const addMachine = async (
   req: Request,

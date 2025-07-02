@@ -5,8 +5,8 @@ import {
   editMachine,
   findMachine,
   getMachine
-} from '@/controllers/machine'
-import { verifyToken } from '@/middlewares/authToken'
+} from '../controllers/machine'
+import { verifyToken } from '../middlewares/authToken'
 
 const machineRouter: Router = Router()
 
