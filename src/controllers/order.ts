@@ -1,17 +1,6 @@
 import { HttpError } from '../configs/errorPipe'
 import prisma from '../configs/prisma'
-import {
-  clearAllOrder,
-  createPresService,
-  deletePrescription,
-  findPrescription,
-  getOrderService,
-  getPharmacyPres,
-  sendOrder,
-  statusPrescription,
-  updateOrderSlot,
-  updateStatusOrderServicePending
-} from '../services/order'
+import { clearAllOrder,createPresService,deletePrescription,findPrescription,getOrderService,getPharmacyPres,sendOrder,statusPrescription,updateOrderSlot,updateStatusOrderServicePending} from '../services/order'
 import { BaseResponse } from '../types/global'
 import { PlcSendMessage } from '../types/rabbit'
 import RabbitMQService from '../utils/rabbit'
@@ -57,8 +46,9 @@ const dispenseOrder = async (
       }
     }
 
-    const response = getPharmacyPres()
+    const response = await getPharmacyPres(rfid)
     const value = await createPresService(response)
+
     await rabbitService.listenToQueue('orders')
     const cmd: PlcSendMessage[] = value
       .map(item => {

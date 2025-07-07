@@ -4,6 +4,7 @@ import { pad } from './padStart'
 import { createPlcCommand } from '../constants/checkMachineStatus'
 import { Socket } from 'net'
 import axios from 'axios'
+import { socketService } from './socket'
 
 interface commandQueueType {
   status: number,
@@ -91,9 +92,25 @@ const checkMachineStatusShared = async (
       }
     } catch (err) {
       console.error(`❌ Error on ${cmd}:`, err)
+      // Emit event plc-error ให้ frontend รับรู้ error นี้ได้
       if (err instanceof PLCStatusError) {
+        socketService.getIO().emit('plc-error', {
+          status: 'error',
+          message: err.message,
+          command: cmd,
+          timestamp: new Date().toISOString(),
+          machineId,
+        });
         throw err
       }
+      // กรณี error อื่น ๆ
+      socketService.getIO().emit('plc-error', {
+        status: 'error',
+        message: `เกิดข้อผิดพลาดระหว่างเช็ค ${cmd}`,
+        command: cmd,
+        timestamp: new Date().toISOString(),
+        machineId,
+      });
       throw new PLCStatusError(`เกิดข้อผิดพลาดระหว่างเช็ค ${cmd}`)
     }
   }
@@ -146,6 +163,13 @@ async function sendCommandWithRetry(
         got91 = true
         clearTimeout(timeoutId)
         console.info('✅ ได้ 91 แล้ว กำลังรอ 92...')
+         socketService.getIO().emit('plc-finish-task', {
+          status: responseStatus,
+          message: `Finish task: ${responseStatus}`,
+          timestamp: new Date().toISOString(),
+          machineId,
+        })
+
       } else if (responseStatus === '92') {
         if (got91) {
           socket.off('data', onData)

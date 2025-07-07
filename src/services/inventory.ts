@@ -28,7 +28,7 @@ const createinventory = async (body: Inventory): Promise<Inventory> => {
         InventoryFloor: body.InventoryFloor
       }
     })
-   // 👉 หลังจากเพิ่มสำเร็จ ให้ส่ง m32 และตามด้วย m33
+ 
 try {
   const responseM32 = await axios.post('http://localhost:3000/sendM', {
     command: 'm32',
@@ -39,7 +39,7 @@ try {
 
   console.log('✅ ส่งคำสั่ง m32 เรียบร้อย:', responseM32.data.plcResponse);
 
-  // ✅ m33 ไม่ต้องมี floor/position/qty
+  
   console.log('📡 เตรียมส่งคำสั่ง m33');
   const responseM33 = await axios.post('http://localhost:3000/sendM', {
     command: 'm33'
@@ -49,7 +49,7 @@ try {
 
 } catch (sendError) {
   console.error('❌ ส่งคำสั่ง m32 หรือ m33 ไม่สำเร็จ:', sendError);
-  // ไม่ throw error เพื่อไม่ให้กระทบการบันทึก inventory
+
 }
     return result
   } catch (error) {
